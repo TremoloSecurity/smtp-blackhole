@@ -1,21 +1,19 @@
-FROM ubuntu:18.04
+FROM python:3.7-slim
 
 MAINTAINER Tremolo Security, Inc. - Docker <docker@tremolosecurity.com>
-
 
 LABEL io.k8s.description="Blackhole" \
       io.k8s.display-name="Blackhole" 
 
-RUN apt-get update;apt-get -y install python3 python3-pip && \
-    apt-get -y upgrade;apt-get clean;rm -rf /var/lib/apt/lists/*; \
+RUN set -xe ; \
     groupadd -r blackhole -g 433 && \
-    mkdir /usr/local/blackhole && \
-    useradd -u 431 -r -g blackhole -d /usr/local/blackhole -s /sbin/nologin -c "Blackhole image user" blackhole && \
-    pip3 install blackhole
+    useradd -u 431 -r -g blackhole -d /usr/local/blackhole -s /sbin/nologin -c "Blackhole image user" blackhole
 
-ADD bh-config.txt /usr/local/blackhole/bh-config.txt
+ARG BLACKHOLE_VERSION=2.1.19
+RUN set -xe ; \
+    pip install --no-cache-dir blackhole==${BLACKHOLE_VERSION}
 
-
+COPY bh-config.txt /usr/local/blackhole/
 
 USER 431
 
